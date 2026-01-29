@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Be My Valentine 💖</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff9a9e;
+  overflow: hidden;
+}
+
+/* ENVELOPE */
+#envelope {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.envelope-body {
+  width: 260px;
+  height: 180px;
+  background: #fff;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  text-align: center;
+  padding-top: 110px;
+  font-weight: bold;
+  color: #ff4d6d;
+}
+
+.envelope-flap {
+  position: absolute;
+  inset: 0;
+  background: #ffe3e6;
+  clip-path: polygon(0 0, 100% 0, 50% 55%);
+}
+
+.hidden {
+  display: none;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+  animation: float 4s ease-in-out infinite, wiggle 0.4s infinite;
+  z-index: 10;
+}
+
+@keyframes wiggle {
+  0% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
+  100% { transform: rotate(-1deg); }
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+h1 {
+  color: #ff4d6d;
+  font-size: 2.2rem;
+}
+
+p {
+  color: #444;
+  font-size: 1.05rem;
+  margin-bottom: 2rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.yes {
+  background: #ff4d6d;
+  color: white;
+}
+
+.no {
+  background: #f1f1f1;
+  color: #555;
+}
+
+.heart {
+  font-size: 3rem;
+  animation: beat 1.2s infinite;
+}
+
+@keyframes beat {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* FLOATING */
+.floating {
+  position: fixed;
+  top: -100px;
+  pointer-events: none;
+  animation: fall linear infinite, spin linear infinite;
+  z-index: 1;
+}
+
+@keyframes fall {
+  from { transform: translateY(-120px); }
+  to { transform: translateY(110vh); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ENVELOPE -->
+<div id="envelope" onclick="openEnvelope()">
+  <div class="envelope-body">
+    <div class="envelope-flap"></div>
+    <p>💌 Click to open</p>
+  </div>
+</div>
+
+<!-- CARD -->
+<div class="card hidden" id="card">
+  <div class="heart">❤️</div>
+  <h1>Will you be my Valentine?</h1>
+  <p>I was wondering if you'd like to spend Valentine’s Day with me 🌹</p>
+
+  <div class="buttons">
+    <button class="yes" onclick="sayYes()">Yes 💕</button>
+    <button class="no" onpointerenter="moveNo(this)">No 🙈</button>
+  </div>
+</div>
+
+<audio id="background-music" loop>
+  <source src="polcasan.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="no-sound" preload="auto">
+  <source src="quack.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const floatingImages = ['polca1.png','polca2.png','polca3.png','polca4.png'];
+const totalFloating = 35;
+let audioUnlocked = false;
+
+const celebrationImages = [
+  'polca5.png',
+  'polca1.png',
+  'polca2.png',
+  'polca3.png'
+];
+
+function spawnFloating(images) {
+  images.forEach(img => {
+    const el = document.createElement('img');
+    el.src = img;
+    el.className = 'floating';
+    el.style.width = Math.random() * 60 + 100 + 'px';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.animationDuration =
+      `${Math.random() * 6 + 6}s, ${Math.random() * 4 + 2}s`;
+    document.body.appendChild(el);
+  });
+}
+
+for (let i = 0; i < totalFloating; i++) {
+  spawnFloating([floatingImages[i % floatingImages.length]]);
+}
+
+function openEnvelope() {
+  const sound = document.getElementById('no-sound');
+  sound.volume = 0;
+  sound.play().then(() => {
+    sound.pause();
+    sound.currentTime = 0;
+    sound.volume = 0.6;
+    audioUnlocked = true;
+  }).catch(() => {});
+
+  document.getElementById('envelope').style.display = 'none';
+  document.getElementById('card').classList.remove('hidden');
+}
+
+function moveNo(button) {
+  button.style.transform =
+    `translate(${Math.random()*600-300}px, ${Math.random()*600-300}px)
+     rotate(${Math.random()*360}deg)`;
+
+  if (audioUnlocked) {
+    const sound = document.getElementById('no-sound');
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+  }
+}
+
+function sayYes() {
+  // optional: clear old floaters
+  document.querySelectorAll('.floating').forEach(e => e.remove());
+
+  const card = document.getElementById('card');
+  card.innerHTML = `
+    <div class="heart">💖💖💖</div>
+    <h1>IT'S A DATE!!!</h1>
+    <p>
+      Polcasan is SCREAMING.<br>
+      I am SCREAMING.<br>
+      Best day ever 🐼💘<br>
+      I Love You Baby!
+    </p>
+  `;
+
+  // 🎉 ADD NEW FLOATING IMAGES
+  for (let i = 0; i < 40; i++) {
+    spawnFloating([
+      celebrationImages[i % celebrationImages.length]
+    ]);
+  }
+
+  const music = document.getElementById('background-music');
+  music.volume = 0.5;
+  music.play().catch(() => {});
+}
+
+</script>
+
+</body>
+</html>
